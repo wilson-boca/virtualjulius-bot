@@ -149,7 +149,7 @@ def respond():
         response = "<b>Olá!, passado é passado, tudo pronto para o próximo mês 🗓</b>️, não se esqueça de adicionar o objetivo  mensal 📝"
         bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
         return 'ok'
-    bot.sendMessage(chat_id=chat_id, text='Parece que você digitou um comando desconhecido...', parse_mode=telegram.ParseMode.HTML)
+    bot.sendMessage(chat_id=chat_id, text='Comando não encontrado, /start mostra os comandos disponíveis...', parse_mode=telegram.ParseMode.HTML)
     return 'nok'
 
 
