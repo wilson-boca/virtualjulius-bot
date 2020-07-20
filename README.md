@@ -10,3 +10,7 @@ gcloud run deploy --image gcr-io/virtualjulius-bot/myfirstbot
 
 Using YAML:
 gcloud builds submit --config cloudbuild.yaml .
+
+Using a very nice button:
+
+[![Run on Google Cloud](https://storage.googleapis.com/cloudrun/button.svg)](https://console.cloud.google.com/cloudshell/editor?shellonly=true&cloudshell_image=gcr.io/cloudrun/button&cloudshell_git_repo=https://github.com/wilson-boca/virtualjulius-bot)
