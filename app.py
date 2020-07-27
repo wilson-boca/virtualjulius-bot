@@ -58,7 +58,7 @@ def respond():
         finance['income'] = round(float(income_extra), 2)
         finance['available'] = round(float(new_available), 2)
         finances_ref.document(id).update(finance)
-        response = "Você recebeu um extra de {}, continue assim...".format(extra)
+        response = "Uhul!, você recebeu uma entrada de {}, continue assim...".format(extra)
         bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
         return 'ok'
     if incoming_msg.startswith('/gasto'):
@@ -83,7 +83,7 @@ def respond():
                                                                                                               finance['available'])
         bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
         return 'ok'
-    if incoming_msg in ('/start', '/help', '/ajuda', '/comandos'):
+    if incoming_msg in ('/start', '/ajuda'):
         response = """
         <b>
         Olá, eu sou o Julius, seu assistente pessoal financeiro 💸
@@ -91,9 +91,9 @@ def respond():
         Eu consigo entender algumas palavras que começam com /
         Por exemplo, para que eu saiba que você recebeu algum
         valor digite /entrada seguido do valor ex: /entrada 500
-        Não se preocupe eu vou calcular tudo pra você...
         Quando gastar digite /gasto valor, ex: /gasto 12,99
         ou /gasto 12.99
+        Não se preocupe eu vou calcular tudo pra você...
         Para fechar o mês e zerar suas contas use /fechamento
         Para ver o histórico de fechamentos digite /histórico
         O seu saldo pode ser consultado sempre com /saldo
@@ -106,21 +106,6 @@ def respond():
                                                                                                               finance['income'],
                                                                                                               finance['available'])
         bot.sendMessage(chat_id=chat_id, text=response, parse_mode=telegram.ParseMode.HTML)
-        return 'ok'
-    if incoming_msg.startswith('/renda'):
-        if len(incoming_msg) < 8:
-            response = '<i>Hum, esse comando precisa de um valor...</i>'
-            bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
-            return 'ok'
-        if finance['income'] != 0.0:
-            response = "Sua renda já foi adicionada, se o mês mudou use o comando /fechamento antes"
-            bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
-            return 'ok'
-        finance['income'] = float((incoming_msg[7:].replace(',', '.')))
-        finance['available'] = finance['income'] - finance['spent']
-        finances_ref.document(id).update(finance)
-        response = "Olá!, seu novo objetivo foi setado para <b>R${}</b>".format(finance['income'])
-        bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
         return 'ok'
     if incoming_msg.startswith('/histórico'):
         balance = balances_ref.document(id).get().to_dict()
