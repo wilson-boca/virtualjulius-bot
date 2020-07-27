@@ -38,78 +38,88 @@ def respond():
     name = json_dict['message']['from']['first_name']
     finance = finances_ref.document(id).get().to_dict()
     if finance is None:
-        finance_object = {"amount": 0.0, "spent": 0.0, "available": 0.0}
+        finance_object = {"income": 0.0, "spent": 0.0, "available": 0.0}
         balance_object = {"closures": []}
         finances_ref.document(str(chat_id)).set(finance_object)
         balances_ref.document(str(chat_id)).set(balance_object)
-        response = '<b>Olá {}, seus dados foram corretamente criados, digite /start para começar...</b>'.format(name)
+        response = '<b>Olá {}, seus dados foram corretamente criados, para aprender a usar digite /ajuda /ajuda</b>'.format(name)
         finance = finances_ref.document(id).get().to_dict()
         bot.sendMessage(chat_id=chat_id, text=response, parse_mode=telegram.ParseMode.HTML)
         return 'ok'
-    if incoming_msg.startswith('/gasto'):
-        if finance['amount'] == 0.0:
-            response = "Antes de qualquer outro comando o objetivo de ser adicionado, use /objetivo valor"
+    if incoming_msg.startswith('/extra'):
+        if len(incoming_msg) < 8:
+            response = '<i>Hum, esse comando precisa de um valor...</i>'
             bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
             return 'ok'
+        income = Decimal(finance['income'])
+        extra = Decimal((incoming_msg[7:].replace(',', '.')))
+        income_extra = income + extra
+        new_available = Decimal(finance['available']) + extra
+        finance['income'] = round(float(income_extra), 2)
+        finance['available'] = round(float(new_available), 2)
+        finances_ref.document(id).update(finance)
+        response = "Você recebeu um extra de {}, continue assim...".format(extra)
+        bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
+        return 'ok'
+    if incoming_msg.startswith('/gasto'):
         if len(incoming_msg) < 8:
             response = '<i>Hum, esse comando precisa de um valor...</i>'
             bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
             return 'ok'
         spent = Decimal(finance['spent'])
         new_spent = spent + Decimal((incoming_msg[7:].replace(',', '.')))
-        new_available = Decimal(finance['amount']) - new_spent
+        new_available = Decimal(finance['income']) - new_spent
         finance['spent'] = round(float(new_spent), 2)
         finance['available'] = round(float(new_available), 2)
         finances_ref.document(id).update(finance)
         if finance['available'] < 0.0:
-            response = "Olá!, você já gastou <b>R${}</b>, de <b>R${}</b>, está NEGATIVO em <b>-R${}</b>, objetivo não foi atingido 😔".format(
+            response = "Olá!, você já gastou <b>R${}</b> de <b>R${}</b>, e está NEGATIVO em <b>-R${}</b>, acho melhor não comprar mais 😔".format(
                 finance['spent'],
-                finance['amount'],
+                finance['income'],
                 abs(finance['available']))
         else:
             response = "Olá!, você já gastou <b>R${}</b>, de <b>R${}</b>, ainda tem <b>R${}</b> para gastar, se você não comprar o desconto é maior 👀".format(finance['spent'],
-                                                                                                              finance['amount'],
+                                                                                                              finance['income'],
                                                                                                               finance['available'])
         bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
         return 'ok'
-    if incoming_msg in ('/start', '/help', '/ajuda', '/tutorial'):
+    if incoming_msg in ('/start', '/help', '/ajuda', '/comandos'):
         response = """
         <b>
-        Olá, eu sou Virtual Julius,...
-        Seu assistente financeiro pessoal 💸
+        Olá, eu sou o Julius, seu assistente pessoal financeiro 💸
         </b>
-        Comece verificando seu saldo com o comando /saldo
-        Em seguida adicione seu objetivo de gastos para o mês
-        com o comando /objetivo seguido do valor ex: /objetivo 1000
-        Depois é só ir incluir gastos com o comando /gasto valor
-        Valor com virgula ou ponto, ex: /gasto 12,99 ou /gasto 12.99
-        Para recomeçar quando trocar o mês use o comando 
-        /fechamento e em seguida adicione seu novo objetivo para 
-        o mês com o comando /objetivo valor
-        Para ver o seu histórico de fechamentos digite /histórico
-        Viu como é fácil... 🕺
+        Eu consigo entender algumas palavras que começam com /
+        Por exemplo, para que eu saiba que você recebeu algum
+        valor digite /entrada seguido do valor ex: /entrada 500
+        Não se preocupe eu vou calcular tudo pra você...
+        Quando gastar digite /gasto valor, ex: /gasto 12,99
+        ou /gasto 12.99
+        Para fechar o mês e zerar suas contas use /fechamento
+        Para ver o histórico de fechamentos digite /histórico
+        O seu saldo pode ser consultado sempre com /saldo
+        Isso é tudo, viu como é fácil... 🕺
         """.format(name)
         bot.sendMessage(chat_id=chat_id, text=response, parse_mode=telegram.ParseMode.HTML)
         return 'ok'
     if incoming_msg.startswith('/saldo'):
         response = "Olá!, você já gastou <b>R${}</b>, de <b>R${}</b>, ainda tem <b>R${}</b> para gastar, se você não comprar o desconto é maior 👀".format(finance['spent'],
-                                                                                                              finance['amount'],
+                                                                                                              finance['income'],
                                                                                                               finance['available'])
         bot.sendMessage(chat_id=chat_id, text=response, parse_mode=telegram.ParseMode.HTML)
         return 'ok'
-    if incoming_msg.startswith('/objetivo'):
-        if len(incoming_msg) < 11:
+    if incoming_msg.startswith('/renda'):
+        if len(incoming_msg) < 8:
             response = '<i>Hum, esse comando precisa de um valor...</i>'
             bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
             return 'ok'
-        if finance['amount'] != 0.0:
-            response = "Já existe um objetivo em andamento, se o mês mudou use o comando /fechamento antes"
+        if finance['income'] != 0.0:
+            response = "Sua renda já foi adicionada, se o mês mudou use o comando /fechamento antes"
             bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
             return 'ok'
-        finance['amount'] = float((incoming_msg[9:].replace(',', '.')))
-        finance['available'] = finance['amount'] - finance['spent']
+        finance['income'] = float((incoming_msg[7:].replace(',', '.')))
+        finance['available'] = finance['income'] - finance['spent']
         finances_ref.document(id).update(finance)
-        response = "Olá!, seu novo objetivo foi setado para <b>R${}</b>".format(finance['amount'])
+        response = "Olá!, seu novo objetivo foi setado para <b>R${}</b>".format(finance['income'])
         bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
         return 'ok'
     if incoming_msg.startswith('/histórico'):
@@ -119,14 +129,14 @@ def respond():
             response = "Você ainda não tem nenhum fechamento..."
             bot.sendMessage(chat_id=chat_id, text=response, parse_mode=telegram.ParseMode.HTML)
             return 'ok'
-        response = 'Fechamentos:'
+        response = 'Histórico de Fechamentos:'
         for closure in closures:
             response += '''
             -----------------------------------
             Data: {}
             Objetivo {}
             Despesas: {}
-            Saldo Final {}'''.format(closure['date'].strftime("%d/%m/%Y %H:%M"), closure['closure']['amount'], closure['closure']['spent'],
+            Saldo Final {}'''.format(closure['date'].strftime("%d/%m/%Y %H:%M"), closure['closure']['income'], closure['closure']['spent'],
                        closure['closure']['available'])
         bot.sendMessage(chat_id=chat_id, text=response, parse_mode=telegram.ParseMode.HTML)
         return 'ok'
@@ -143,7 +153,7 @@ def respond():
         balance['closures'].append(closure)
         balances_ref.document(id).update(balance)
         finance['spent'] = 0.0
-        finance['amount'] = 0.0
+        finance['income'] = 0.0
         finance['available'] = 0.0
         finances_ref.document(id).update(finance)
         response = "<b>Olá!, passado é passado, tudo pronto para o próximo mês 🗓</b>️, não se esqueça de adicionar o objetivo  mensal 📝"
