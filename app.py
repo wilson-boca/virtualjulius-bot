@@ -42,11 +42,11 @@ def respond():
         balance_object = {"closures": []}
         finances_ref.document(str(chat_id)).set(finance_object)
         balances_ref.document(str(chat_id)).set(balance_object)
-        response = '<b>Olá {}, seus dados foram corretamente criados, para aprender a usar digite /ajuda /ajuda</b>'.format(name)
+        response = '<b>Olá {}, seus dados foram corretamente criados, para aprender a usar digite /ajuda</b>'.format(name)
         finance = finances_ref.document(id).get().to_dict()
         bot.sendMessage(chat_id=chat_id, text=response, parse_mode=telegram.ParseMode.HTML)
         return 'ok'
-    if incoming_msg.startswith('/extra'):
+    if incoming_msg.startswith('/entrada'):
         if len(incoming_msg) < 8:
             response = '<i>Hum, esse comando precisa de um valor...</i>'
             bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
