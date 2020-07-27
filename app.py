@@ -91,6 +91,7 @@ def respond():
         Eu consigo entender algumas palavras que começam com /
         Por exemplo, para que eu saiba que você recebeu algum
         valor digite /entrada seguido do valor ex: /entrada 500
+        Comece adicionando sua renda líquida mensal!
         Quando gastar digite /gasto valor, ex: /gasto 12,99
         ou /gasto 12.99
         Não se preocupe eu vou calcular tudo pra você...
