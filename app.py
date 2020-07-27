@@ -47,12 +47,12 @@ def respond():
         bot.sendMessage(chat_id=chat_id, text=response, parse_mode=telegram.ParseMode.HTML)
         return 'ok'
     if incoming_msg.startswith('/entrada'):
-        if len(incoming_msg) < 8:
+        if len(incoming_msg) < 10:
             response = '<i>Hum, esse comando precisa de um valor...</i>'
             bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id, parse_mode=telegram.ParseMode.HTML)
             return 'ok'
         income = Decimal(finance['income'])
-        extra = Decimal((incoming_msg[7:].replace(',', '.')))
+        extra = Decimal((incoming_msg[9:].replace(',', '.')))
         income_extra = income + extra
         new_available = Decimal(finance['available']) + extra
         finance['income'] = round(float(income_extra), 2)
