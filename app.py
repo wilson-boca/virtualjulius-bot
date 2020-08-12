@@ -14,7 +14,7 @@ credential_json = {
   "type": "service_account",
   "project_id": "virtualjulius-bot",
   "private_key_id": getenv('private_key_id'),
-  "private_key": getenv('private_key'),
+  "private_key": getenv('private_key').replace('|', '\n'),
   "client_email": getenv('client_email'),
   "client_id": getenv('client_id'),
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
