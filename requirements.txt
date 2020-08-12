@@ -2,3 +2,5 @@ flask
 python-telegram-bot
 gunicorn
 firebase_admin
+pytesseract
+Pillow

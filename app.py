@@ -1,11 +1,16 @@
 import pytz
+import telegram
+import firebase_admin
+import requests
+
+
+from PIL import Image
 from datetime import datetime
 from decimal import Decimal
 from flask import Flask, request
-import telegram
 from telebot.credentials import bot_token, URL, port
-import firebase_admin
 from firebase_admin import credentials, firestore
+from py_ocr import ocr_core
 
 cred = credentials.Certificate("key.json")
 firebase_admin.initialize_app(cred)
@@ -16,13 +21,27 @@ global bot
 global TOKEN
 
 TOKEN = bot_token
+print(TOKEN)
 bot = telegram.Bot(token=bot_token)
 app = Flask(__name__)
+
+
+def process_image(file_id, json_dict):
+    url = 'https://api.telegram.org/bot{}/getFile?file_id={}'.format(TOKEN, file_id)
+    result = requests.get(url)
+    file_path = result.json()['result']['file_path']
+    file_url = 'https://api.telegram.org/file/bot{}/{}'.format(TOKEN, file_path)
+    image = Image.open(requests.get(file_url, stream=True).raw)
+    image.save('photos/latest_image.jpg')
+    text = ocr_core('photos/latest_image.jpg')
+    json_dict['message']['text'] = text
 
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond():
     json_dict = request.get_json(force=True)
+    if 'photo' in json_dict['message']:
+        process_image(json_dict['message']['photo'][-1]['file_id'], json_dict)
     if json_dict.get('message', None) is None:
         print(json_dict)
         return 'ok'
