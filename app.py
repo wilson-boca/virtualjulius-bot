@@ -2,6 +2,7 @@ import pytz
 import firebase_admin
 import telegram
 import requests
+import pathlib
 
 from os import getenv
 from datetime import datetime
@@ -25,7 +26,8 @@ credential_json = {
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
   "client_x509_cert_url": getenv('client_x509_cert_url')
 }
-
+folder = pathlib.Path(__file__).parent
+print('Docker path: {}'.format(folder))
 cred = credentials.Certificate(credential_json)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
@@ -45,8 +47,8 @@ def process_image(file_id):
     file_path = result.json()['result']['file_path']
     file_url = 'https://api.telegram.org/file/bot{}/{}'.format(TOKEN, file_path)
     image = Image.open(requests.get(file_url, stream=True).raw)
-    image.save(file_path)
-    ocr = CustomOCR(file_path)
+    image.save('{}/{}'.format(folder, file_path))
+    ocr = CustomOCR('{}/{}'.format(folder, file_path))
     result = ocr.text_to_command()
     return result
 
