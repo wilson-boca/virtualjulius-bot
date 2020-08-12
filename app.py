@@ -9,7 +9,7 @@ from decimal import Decimal
 from flask import Flask, request
 from telebot.credentials import bot_token, URL
 from firebase_admin import credentials, firestore
-from photos import CustomOCR
+from services.py_ocr import CustomOCR
 from PIL import Image
 
 pvt_key = getenv('private_key').replace('|', '\n').replace('\\=', '=')
