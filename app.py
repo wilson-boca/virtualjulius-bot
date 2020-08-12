@@ -9,7 +9,7 @@ from flask import Flask, request
 from telebot.credentials import bot_token, URL, port
 from firebase_admin import credentials, firestore
 
-pvt_key = getenv('private_key').replace('|', '\n')
+pvt_key = getenv('private_key').replace('|', '\n').replace('\\=', '=')
 credential_json = {
   "type": "service_account",
   "project_id": "virtualjulius-bot",
