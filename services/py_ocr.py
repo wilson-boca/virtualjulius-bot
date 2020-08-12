@@ -50,6 +50,6 @@ class CustomOCR(object):
                 return self.decoders[key](self.text[result:])
 
 
-# ocr = CustomOCR('/home/rodrigo/projects/julius-bot/teste04.jpg')
-# command = ocr.text_to_command()
-# print(command)
+ocr = CustomOCR('/home/rodrigo/projects/julius-bot/teste02.jpg')
+command = ocr.text_to_command()
+print(command)
