@@ -14,7 +14,7 @@ class CustomOCR(object):
 
     def valor_decoder(self, text):
         text = text.split('\n\n')
-        pos = text.index('Valor:')
+        pos = text.index('Valor')
         value = text[pos + 1].replace('RS ', '/gasto ')
         value = value.replace('R$ ', '/gasto ')
         return value
