@@ -45,8 +45,8 @@ def process_image(file_id):
     file_path = result.json()['result']['file_path']
     file_url = 'https://api.telegram.org/file/bot{}/{}'.format(TOKEN, file_path)
     image = Image.open(requests.get(file_url, stream=True).raw)
-    image.save('photos/latest_image.jpg')
-    ocr = CustomOCR('photos/latest_image.jpg')
+    image.save(file_path)
+    ocr = CustomOCR(file_path)
     result = ocr.text_to_command()
     return result
 
