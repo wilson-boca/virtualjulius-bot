@@ -25,9 +25,6 @@ credential_json = {
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
   "client_x509_cert_url": getenv('client_x509_cert_url')
 }
-print('-----------------CREDENTIALS ABOVE--------------------')
-print(credential_json)
-print('-----------------ENDS HERE----------------------------')
 
 cred = credentials.Certificate(credential_json)
 firebase_admin.initialize_app(cred)
@@ -38,7 +35,6 @@ global bot
 global TOKEN
 
 TOKEN = bot_token
-print(TOKEN)
 bot = telegram.Bot(token=bot_token)
 app = Flask(__name__)
 
@@ -63,10 +59,8 @@ def respond():
         if result:
             json_dict['message']['text'] = result
     if json_dict.get('message', None) is None:
-        print(json_dict)
         return 'ok'
     if json_dict.get('message', None).get('text', None) is None:
-        print(json_dict)
         return 'ok'
     incoming_msg = json_dict['message']['text']
     if not incoming_msg.startswith('/'):
