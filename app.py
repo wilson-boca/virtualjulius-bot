@@ -1,10 +1,16 @@
 import pytz
+import firebase_admin
+import telegram
+import requests
+
+from os import getenv
 from datetime import datetime
 from decimal import Decimal
 from flask import Flask, request
-from telebot.credentials import bot_token, URL, port
+from telebot.credentials import bot_token, URL
 from firebase_admin import credentials, firestore
-from py_ocr import ocr_core
+from services.py_ocr import CustomOCR
+from PIL import Image
 
 pvt_key = getenv('private_key').replace('|', '\n').replace('\\=', '=')
 credential_json = {
@@ -37,22 +43,25 @@ bot = telegram.Bot(token=bot_token)
 app = Flask(__name__)
 
 
-def process_image(file_id, json_dict):
+def process_image(file_id):
     url = 'https://api.telegram.org/bot{}/getFile?file_id={}'.format(TOKEN, file_id)
     result = requests.get(url)
     file_path = result.json()['result']['file_path']
     file_url = 'https://api.telegram.org/file/bot{}/{}'.format(TOKEN, file_path)
     image = Image.open(requests.get(file_url, stream=True).raw)
     image.save('photos/latest_image.jpg')
-    text = ocr_core('photos/latest_image.jpg')
-    json_dict['message']['text'] = text
+    ocr = CustomOCR('photos/latest_image.jpg')
+    result = ocr.text_to_command()
+    return result
 
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond():
     json_dict = request.get_json(force=True)
     if 'photo' in json_dict['message']:
-        process_image(json_dict['message']['photo'][-1]['file_id'], json_dict)
+        result = process_image(json_dict['message']['photo'][-1]['file_id'])
+        if result:
+            json_dict['message']['text'] = result
     if json_dict.get('message', None) is None:
         print(json_dict)
         return 'ok'
