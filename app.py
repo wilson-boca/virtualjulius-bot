@@ -9,11 +9,12 @@ from flask import Flask, request
 from telebot.credentials import bot_token, URL, port
 from firebase_admin import credentials, firestore
 
+print(getenv('private_key_id'))
 credential_json = {
   "type": "service_account",
   "project_id": "virtualjulius-bot",
   "private_key_id": getenv('private_key_id'),
-  "private_key": getenv('private_key').replace('|', '\n'),
+  "private_key": getenv('private_key'),
   "client_email": getenv('client_email'),
   "client_id": getenv('client_id'),
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -21,6 +22,7 @@ credential_json = {
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
   "client_x509_cert_url": getenv('client_x509_cert_url')
 }
+print(credential_json)
 cred = credentials.Certificate(credential_json)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
