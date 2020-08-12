@@ -1,10 +1,4 @@
 import pytz
-import telegram
-import firebase_admin
-import requests
-
-
-from PIL import Image
 from datetime import datetime
 from decimal import Decimal
 from flask import Flask, request
@@ -12,7 +6,24 @@ from telebot.credentials import bot_token, URL, port
 from firebase_admin import credentials, firestore
 from py_ocr import ocr_core
 
-cred = credentials.Certificate("key.json")
+pvt_key = getenv('private_key').replace('|', '\n').replace('\\=', '=')
+credential_json = {
+  "type": "service_account",
+  "project_id": "virtualjulius-bot",
+  "private_key_id": getenv('private_key_id'),
+  "private_key": pvt_key,
+  "client_email": getenv('client_email'),
+  "client_id": getenv('client_id'),
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": getenv('client_x509_cert_url')
+}
+print('-----------------CREDENTIALS ABOVE--------------------')
+print(credential_json)
+print('-----------------ENDS HERE----------------------------')
+
+cred = credentials.Certificate(credential_json)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 finances_ref = db.collection('finances')
