@@ -1,13 +1,27 @@
 import pytz
+import firebase_admin
+import telegram
+
+from os import getenv
 from datetime import datetime
 from decimal import Decimal
 from flask import Flask, request
-import telegram
 from telebot.credentials import bot_token, URL, port
-import firebase_admin
 from firebase_admin import credentials, firestore
 
-cred = credentials.Certificate("key.json")
+credential_json = {
+  "type": "service_account",
+  "project_id": "virtualjulius-bot",
+  "private_key_id": getenv('private_key_id'),
+  "private_key": getenv('private_key').replace('|', '\n'),
+  "client_email": getenv('client_email'),
+  "client_id": getenv('client_id'),
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": getenv('client_x509_cert_url')
+}
+cred = credentials.Certificate(credential_json)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 finances_ref = db.collection('finances')
