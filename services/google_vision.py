@@ -1,10 +1,8 @@
 from google.cloud import vision
 
 
-def detect_text(img_src):
-    image = vision.types.Image()
-    image.source.image_uri = img_src
-    # image = vision.types.Image(content=content)
+def detect_text(content):
+    image = vision.types.Image(content=content)
     client = vision.ImageAnnotatorClient()
     response = client.text_detection(image=image)
     texts = response.text_annotations
