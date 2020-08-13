@@ -54,6 +54,8 @@ def process_image(file_id, chat_id):
     image = Image.open(requests.get(file_url, stream=True).raw)
     bot.sendMessage(chat_id=chat_id, text=image.format, parse_mode=telegram.ParseMode.HTML)
     ocr = CustomOCR(image)
+    bot.sendMessage(chat_id=chat_id, text=ocr.command, parse_mode=telegram.ParseMode.HTML)
+    bot.sendMessage(chat_id=chat_id, text=ocr.full_text, parse_mode=telegram.ParseMode.HTML)
     return ocr.command
 
 

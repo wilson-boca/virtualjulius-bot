@@ -13,6 +13,14 @@ class CustomOCR(object):
         self.command = self.text_to_command()
 
     @property
+    def full_text(self):
+        return self.text
+
+    @full_text.setter
+    def text_command(self, text):
+        self.text = text
+
+    @property
     def text_command(self):
         return self.command
 
