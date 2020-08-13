@@ -1,4 +1,5 @@
 flask
+Flask-Cors==3.0.8
 python-telegram-bot
 gunicorn
 firebase_admin
