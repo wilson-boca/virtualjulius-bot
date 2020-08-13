@@ -10,7 +10,16 @@ class CustomOCR(object):
                          'Valor:': self.valor_colon_decoder,
                          'Valor': self.valor_decoder,
                          'DEBITO A VISTA': self.debito_a_vista_decoder}
-        self.text = pytesseract.image_to_string(Image.open(image))
+        self.text = pytesseract.image_to_string(image)
+        self.command = self.text_to_command()
+
+    @property
+    def text_command(self):
+        return self.command
+
+    @text_command.setter
+    def text_command(self, command):
+        self.command = command
 
     def valor_decoder(self, text):
         text = text.split('\n\n')
