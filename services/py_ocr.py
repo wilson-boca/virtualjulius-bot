@@ -1,4 +1,3 @@
-from PIL import Image
 import pytesseract
 
 
@@ -57,8 +56,3 @@ class CustomOCR(object):
             result = self.text.find(key)
             if result > -1:
                 return self.decoders[key](self.text[result:])
-
-
-# ocr = CustomOCR('/home/rodrigo/projects/julius-bot/teste02.jpg')
-# command = ocr.text_to_command()
-# print(command)

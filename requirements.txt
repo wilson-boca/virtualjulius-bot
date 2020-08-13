@@ -4,4 +4,3 @@ gunicorn
 firebase_admin
 pytesseract
 Pillow
-opencv-python
