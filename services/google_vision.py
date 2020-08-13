@@ -3,10 +3,11 @@ import os
 from google.cloud import vision
 
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/home/rodrigo/projects/julius-bot/.key.json'
+# os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/home/rodrigo/projects/julius-bot/.key.json'
 
 
 def detect_text(content):
+    print(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
     image = vision.types.Image(content=content)
     client = vision.ImageAnnotatorClient()
     response = client.text_detection(image=image)
