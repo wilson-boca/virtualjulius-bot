@@ -1,4 +1,4 @@
-import pytesseract
+from services.google_vision import detect_text
 
 
 class CustomOCR(object):
@@ -8,8 +8,9 @@ class CustomOCR(object):
                          'Valor Pago': self.valor_pago_decoder,
                          'Valor:': self.valor_colon_decoder,
                          'Valor': self.valor_decoder,
-                         'DEBITO A VISTA': self.debito_a_vista_decoder}
-        self.text = pytesseract.image_to_string(image)
+                         'DEBITO A VISTA': self.debito_a_vista_decoder,
+                         'CREDITO A VISTA': self.credito_a_vista_decoder}
+        self.text = detect_text(image)
         self.command = self.text_to_command()
 
     @property
@@ -29,35 +30,36 @@ class CustomOCR(object):
         self.command = command
 
     def valor_decoder(self, text):
-        text = text.split('\n\n')
-        pos = text.index('Valor')
-        value = text[pos + 1].replace('RS ', '/gasto ')
+        text = text.split('\n')
+        value = text[1].replace('RS ', '/gasto ')
         value = value.replace('R$ ', '/gasto ')
         return value
 
     def valor_colon_decoder(self, text):
-        text = text.split('\n\n')
-        pos = text.index('Valor:')
-        value = text[pos + 1].replace('RS ', '/gasto ')
+        text = text.split('\n')
+        value = text[1].replace('RS ', '/gasto ')
         value = value.replace('R$ ', '/gasto ')
         return value
 
     def valor_pago_decoder(self, text):
-        text = text.split('\n\n')
-        pos = text.index('Valor Pago')
-        value = text[pos + 1].replace('RS ', '/gasto ')
+        text = text.split('\n')
+        value = text[1].replace('RS ', '/gasto ')
         value = value.replace('R$ ', '/gasto ')
         return value
 
     def valor_pago_colon_decoder(self, text):
         text = text.split('\n')
-        pos = text.index('Valor Pago:')
-        value = text[pos + 1].replace('RS ', '/gasto ')
+        value = text[1].replace('RS ', '/gasto ')
         value = value.replace('R$ ', '/gasto ')
         return value
 
     def debito_a_vista_decoder(self, text):
-        return '/gasto {}'.format(text[15:].split('\n')[0])
+        text = text.split('\n')
+        return '/gasto {}'.format(text[1])
+
+    def credito_a_vista_decoder(self, text):
+        text = text.split('\n')
+        return '/gasto {}'.format(text[1])
 
     def text_to_command(self):
         for key in self.decoders.keys():

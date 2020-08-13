@@ -1,38 +1,20 @@
 import pytz
-import firebase_admin
 import telegram
 import requests
 import pathlib
-
-from os import getenv
+import io
 from datetime import datetime
 from decimal import Decimal
 from flask import Flask, request
 from flask_cors import CORS
 
 from telebot.credentials import bot_token, URL
-from firebase_admin import credentials, firestore
 from services.py_ocr import CustomOCR
 from PIL import Image
 
-pvt_key = getenv('private_key').replace('|', '\n').replace('\\=', '=')
-credential_json = {
-  "type": "service_account",
-  "project_id": "virtualjulius-bot",
-  "private_key_id": getenv('private_key_id'),
-  "private_key": pvt_key,
-  "client_email": getenv('client_email'),
-  "client_id": getenv('client_id'),
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": getenv('client_x509_cert_url')
-}
 folder = pathlib.Path(__file__).parent
 print('Docker path: {}'.format(folder))
-cred = credentials.Certificate(credential_json)
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+from telebot.credentials import db
 finances_ref = db.collection('finances')
 balances_ref = db.collection('balances')
 global bot
@@ -47,27 +29,25 @@ CORS(app)
 def process_image(file_id, chat_id):
     url = 'https://api.telegram.org/bot{}/getFile?file_id={}'.format(TOKEN, file_id)
     result = requests.get(url)
-    bot.sendMessage(chat_id=chat_id, text=result.status_code, parse_mode=telegram.ParseMode.HTML)
     file_path = result.json()['result']['file_path']
     file_url = 'https://api.telegram.org/file/bot{}/{}'.format(TOKEN, file_path)
-    bot.sendMessage(chat_id=chat_id, text=file_url, parse_mode=telegram.ParseMode.HTML)
     image = Image.open(requests.get(file_url, stream=True).raw)
-    bot.sendMessage(chat_id=chat_id, text=image.format, parse_mode=telegram.ParseMode.HTML)
-    ocr = CustomOCR(image)
-    bot.sendMessage(chat_id=chat_id, text=ocr.command, parse_mode=telegram.ParseMode.HTML)
-    bot.sendMessage(chat_id=chat_id, text=ocr.full_text, parse_mode=telegram.ParseMode.HTML)
+    buf = io.BytesIO()
+    image.save(buf, format='JPEG')
+    byte_im = buf.getvalue()
+    ocr = CustomOCR(byte_im)
     return ocr.command
 
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond():
     json_dict = request.get_json(force=True)
+    if json_dict.get('message', None) is None:
+        return 'ok'
     if 'photo' in json_dict['message']:
         result = process_image(json_dict['message']['photo'][-1]['file_id'], json_dict['message']['chat']['id'])
         if result:
             json_dict['message']['text'] = result
-    if json_dict.get('message', None) is None:
-        return 'ok'
     if json_dict.get('message', None).get('text', None) is None:
         return 'ok'
     incoming_msg = json_dict['message']['text']
