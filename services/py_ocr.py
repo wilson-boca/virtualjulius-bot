@@ -3,14 +3,14 @@ from services.google_vision import detect_text
 
 class CustomOCR(object):
 
-    def __init__(self, image):
+    def __init__(self, img_src):
         self.decoders = {'Valor Pago:': self.valor_pago_colon_decoder,
                          'Valor Pago': self.valor_pago_decoder,
                          'Valor:': self.valor_colon_decoder,
                          'Valor': self.valor_decoder,
                          'DEBITO A VISTA': self.debito_a_vista_decoder,
                          'CREDITO A VISTA': self.credito_a_vista_decoder}
-        self.text = detect_text(image)
+        self.text = detect_text(img_src)
         self.command = self.text_to_command()
 
     @property

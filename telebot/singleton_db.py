@@ -4,8 +4,7 @@ from os import getenv
 from firebase_admin import credentials, firestore
 
 
-bot_token = "1276054342:AAFnzpUenolykLvOns7CS1ItnuFsNOFiRvU"
-# URL = os.environ.get('URL', 'https://julius-rock-bot.herokuapp.com/')
+bot_token = getenv('BOT_TOKEN')
 URL = os.environ.get('URL', 'https://134a7b7e7c8d.ngrok.io/')
 port = int(os.environ.get('PORT', 8080))
 

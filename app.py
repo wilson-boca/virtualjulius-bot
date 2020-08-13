@@ -2,21 +2,19 @@ import pytz
 import telegram
 import requests
 import pathlib
-import io
+
 from datetime import datetime
 from decimal import Decimal
 from flask import Flask, request
 from flask_cors import CORS
-
-from telebot.credentials import bot_token, URL
+from telebot.singleton_db import bot_token, URL
 from services.py_ocr import CustomOCR
-from PIL import Image
+from telebot.singleton_db import db
 
 folder = pathlib.Path(__file__).parent
-print('Docker path: {}'.format(folder))
-from telebot.credentials import db
 finances_ref = db.collection('finances')
 balances_ref = db.collection('balances')
+
 global bot
 global TOKEN
 
@@ -30,12 +28,8 @@ def process_image(file_id, chat_id):
     url = 'https://api.telegram.org/bot{}/getFile?file_id={}'.format(TOKEN, file_id)
     result = requests.get(url)
     file_path = result.json()['result']['file_path']
-    file_url = 'https://api.telegram.org/file/bot{}/{}'.format(TOKEN, file_path)
-    image = Image.open(requests.get(file_url, stream=True).raw)
-    buf = io.BytesIO()
-    image.save(buf, format='JPEG')
-    byte_im = buf.getvalue()
-    ocr = CustomOCR(byte_im)
+    img_src = 'https://api.telegram.org/file/bot{}/{}'.format(TOKEN, file_path)
+    ocr = CustomOCR(img_src)
     return ocr.command
 
 
