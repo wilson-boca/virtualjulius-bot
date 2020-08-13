@@ -1,9 +1,4 @@
-import os
-
 from google.cloud import vision
-
-
-# os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/home/rodrigo/projects/julius-bot/.key.json'
 
 
 def detect_text(content):
